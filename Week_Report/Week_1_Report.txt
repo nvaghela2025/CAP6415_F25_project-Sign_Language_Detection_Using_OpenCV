@@ -1,0 +1,33 @@
+Week 1 – Research and Initial Setup
+Project: Sign Language Detection Using OpenCV
+1. Overview
+During the first week, the focus was on research, environment setup, and the theoretical groundwork for the sign-language detection project. The repository structure and README were prepared locally to outline the upcoming workflow, but no executable code was committed yet—only documentation and planning notes. This ensured that the system architecture and dataset strategy were clearly defined before actual implementation.
+2. Research Summary
+Extensive research was conducted on computer-vision approaches for real-time gesture and sign-language recognition. The goal was to identify efficient ways of combining OpenCV image-processing techniques with a Convolutional Neural Network (CNN) for accurate classification of static hand gestures.
+Key insights gathered:
+OpenCV enables real-time video capture and pre-processing steps such as grayscale conversion, Gaussian blurring, contour extraction, and region-of-interest (ROI) segmentation.
+CNN models trained with TensorFlow / Keras are effective for classifying hand gestures representing alphabetic signs.
+Earlier studies in American Sign Language (ASL) and Indian Sign Language (ISL) achieved recognition accuracies between 94 % – 97 %, demonstrating feasibility for webcam-based detection systems.
+Concepts from image formation, Fourier filtering, and temporal filtering [16][17][21][22] guided the understanding of how camera input, lighting, and motion can affect recognition performance.
+3. Initial Setup
+The Python working environment was configured successfully, and all required libraries were installed:
+OpenCV, TensorFlow, NumPy, Matplotlib, and os for file management.
+Test imports verified proper installation. The GitHub repository was created but intentionally left empty for now; no .py or dataset files were pushed yet since the team is still validating preprocessing parameters offline.
+4. Dataset Planning and Preliminary Work
+A dataset plan was finalized for 26 hand-gesture classes (A–Z). Images will be captured using a standard webcam against a neutral background. Each alphabet will have approximately 40 samples, resulting in a base dataset of about 1,000 images.
+This week, a small pilot session was completed to test lighting and framing conditions using OpenCV’s VideoCapture() method. The captured frames helped verify that thresholding and contour detection isolate the hand region effectively. These test images were stored locally for reference but not uploaded.
+5. Progress Summary
+✔ Research and literature review completed.
+✔ Python + OpenCV environment configured.
+✔ Repository structure created (no code yet).
+✔ Pilot image-capture tests performed.
+❌ No model training or dataset upload this week (planned for Week 2).
+This progress provides a solid base for next week, when full data collection and preprocessing automation will begin.
+6. References
+[15] Project Proposal: Sign Language Detection Using OpenCV, 2024.
+[16] Torralba, A., Isola, P., & Freeman, W. (2024). A Simple Vision System. Foundations of Computer Vision.
+[17] Torralba et al. (2024). Lenses and Cameras as Linear Systems. Foundations of Computer Vision.
+[20] Torralba et al. (2024). Linear Filters. Foundations of Computer Vision.
+[21] Torralba et al. (2024). Fourier Analysis. Foundations of Computer Vision.
+[22] Torralba et al. (2024). Temporal Filters. Foundations of Computer Vision.
+[23] Torralba et al. (2024). Linear Image Filtering. Foundations of Computer Vision.
