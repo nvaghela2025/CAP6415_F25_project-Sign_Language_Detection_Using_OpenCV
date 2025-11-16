@@ -1,0 +1,100 @@
+WEEK 2 REPORT (Final Version Based on Your Notebook Code)
+
+File name: Week_2_Report.txt
+
+---
+
+Week 2 – Dataset Preparation & Image Preprocessing
+
+Project:** Sign Language Detection Using OpenCV
+
+Course: CAP6415 – Fall 2025
+
+---
+
+1. Overview
+
+During Week 2, the main focus was on **dataset preparation** and **developing the preprocessing pipeline** for hand-gesture images. A new Jupyter Notebook titled **Data_Preprocessing.ipynb** was created to automate reading raw images, applying OpenCV transformations, and saving cleaned, standardized samples.
+
+This work establishes the foundation for the CNN model training scheduled for Week 3.
+
+---
+
+2. Dataset Preparation
+
+A folder structure was created locally to organize gesture images into alphabet-labeled directories:
+
+```
+dataset/
+│── A/
+│── B/
+│── C/
+│── …
+│── Z/
+```
+
+Each folder contains raw hand-images captured using a webcam.
+For Week 2, the dataset includes **10–15 images per class** (≈300–400 images total).
+
+This will be expanded next week.
+
+---
+
+3. Preprocessing Pipeline (Implemented in Notebook)
+
+The notebook contains a complete, functional data-processing pipeline, applied to each image:
+
+Step-by-step transformations
+
+Load image
+Convert to grayscale:- using `cv2.cvtColor()`
+Apply Gaussian blur:- to remove noise (`cv2.GaussianBlur()`)
+Otsu thresholding:- for hand segmentation (`cv2.threshold()`)
+Resize to 64×64 pixels:- for CNN input
+Save preprocessed image inside:
+
+```
+processed_dataset/
+│── A/
+│── B/
+│── C/
+│── …
+│── Z/
+```
+
+The entire pipeline is fully automated and processes every subfolder inside `dataset/`.
+
+---
+
+4. Visualization Output**
+
+The notebook includes a visualization cell that:
+
+Displays one **original image**
+Displays the **corresponding processed image**
+
+using matplotlib:
+
+```
+Original Image  |  Processed (Grayscale + Threshold) Image
+```
+
+This serves as verification that segmentation and preprocessing work correctly.
+
+---
+
+5. Results
+
+Total images processed: (output shown directly in notebook)
+All processed images were saved successfully in `processed_dataset/`.
+The preprocessing quality is consistent across gesture classes.
+Thresholding created a clean binary silhouette of the hand suitable for CNN analysis.
+
+---
+
+6. Files Created This Week**
+
+Data_Preprocessing.ipynb** — Executable notebook with full preprocessing logic
+Processed dataset folder** — Cleaned images ready for Week 3 model training
+
+
