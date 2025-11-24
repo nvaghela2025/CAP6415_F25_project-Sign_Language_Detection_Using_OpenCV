@@ -1,0 +1,26 @@
+Week 3 – Annotation System & Ground-Truth Labeling
+Project: Sign Language Detection Using OpenCV
+
+1. Overview
+This week focused on creating the annotation pipeline for the sign-language dataset. The goal was to generate reliable ground-truth labels for each gesture image so the future model can learn both class information and hand-location in the frame.
+2. Annotation Format
+Each image now includes an annotation file stored in Pascal VOC XML format, containing:
+Gesture class name (hello, thankyou, please, sorry)
+Bounding box coordinates (xmin, ymin, xmax, ymax)
+Image size and filename metadata
+This format is compatible with TensorFlow, Keras, YOLO, and most CV training tools.
+3. Annotation Workflow Done This Week
+Created annotation script (anotation.py) to handle XML generation.
+Labeled initial dataset images using bounding boxes.
+Ensured each image has a matching XML file (same filename).
+Verified annotations by drawing boxes on a few sample frames using OpenCV.
+This ensures clean, consistent ground-truth labels for training.
+4. Files Updated / Added
+anotation.py – XML annotation creation logic
+Pascal VOC XML files for all gesture images
+Minor updates to setup.py
+Week 3 documentation
+5. Next Week Plan
+Complete labeling for remaining classes
+Begin building the CNN/detection training pipeline
+Load annotations during training and extract hand ROIs
