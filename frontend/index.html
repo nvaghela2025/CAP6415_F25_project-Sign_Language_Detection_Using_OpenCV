@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Language Detection – Live</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at top left, #1f2937, #020617);
+      --card-bg: rgba(15, 23, 42, 0.9);
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.12);
+      --accent-2: #38bdf8;
+      --border-subtle: rgba(148, 163, 184, 0.3);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1080px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow:
+        0 32px 80px rgba(15, 23, 42, 0.7),
+        0 0 0 1px rgba(15, 23, 42, 0.6);
+      padding: 24px 28px 26px;
+      backdrop-filter: blur(16px);
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 16px;
+    }
+
+    .app-title-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-pill {
+      width: 46px;
+      height: 46px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 0, #4ade80, #16a34a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(34, 197, 94, 0.4),
+        0 18px 40px rgba(34, 197, 94, 0.5);
+      color: white;
+      font-weight: 600;
+      font-size: 20px;
+      letter-spacing: 0.03em;
+    }
+
+    .app-title-text h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px 3px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #bbf7d0;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.4);
+    }
+
+    .app-title-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .app-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .api-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #cbd5f5;
+    }
+
+    .api-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .api-url {
+      font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      color: #9ca3ff;
+    }
+
+    .app-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .app-body {
+        grid-template-columns: 1fr;
+      }
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .app-header-right {
+        align-items: flex-start;
+      }
+    }
+
+    .panel {
+      border-radius: 20px;
+      padding: 16px 16px 18px;
+      background: var(--card-bg);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.65);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    .chip {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      padding: 3px 10px 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    /* Camera / Live Panel */
+
+    .camera-shell {
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.96));
+      padding: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .camera-video-wrapper {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: black;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e5e7eb;
+    }
+
+    .camera-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(248, 250, 252, 0.7);
+    }
+
+    .camera-status-dot.active {
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.45);
+    }
+
+    .camera-top-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      font-size: 11px;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .camera-top-tag span {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #a5b4fc;
+    }
+
+    .camera-placeholder {
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 12px;
+    }
+
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      gap: 10px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .primary-btn {
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow:
+        0 8px 25px rgba(22, 163, 74, 0.7),
+        0 0 0 1px rgba(22, 163, 74, 0.6);
+      transition: all 0.15s ease-out;
+      white-space: nowrap;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 12px 30px rgba(22, 163, 74, 0.8),
+        0 0 0 1px rgba(22, 163, 74, 0.7);
+    }
+
+    .primary-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .ghost-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .ghost-btn.small {
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+
+    .ghost-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .secondary-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .secondary-text span {
+      color: #93c5fd;
+    }
+
+    .status-line {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot-loading {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: 2px solid rgba(148, 163, 184, 0.5);
+      border-top-color: #22c55e;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .status-dot-idle {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.65);
+    }
+
+    .error-text {
+      color: var(--danger);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Settings panel (left bottom) */
+
+    .settings-card {
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.92);
+      padding: 10px 12px;
+      font-size: 11px;
+    }
+
+    .settings-title {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 10px;
+    }
+
+    .settings-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings-row label {
+      color: var(--text-main);
+      font-size: 11px;
+    }
+
+    .settings-row select {
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 4px 8px;
+      font-size: 11px;
+      outline: none;
+    }
+
+    .settings-row input[type="checkbox"] {
+      margin-right: 6px;
+      accent-color: #22c55e;
+    }
+
+    /* Right panel: results & legend */
+
+    .result-section {
+      margin-top: 8px;
+    }
+
+    .result-card {
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .result-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .result-main-label {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e5e7ff;
+    }
+
+    .result-pill {
+      font-size: 11px;
+      padding: 3px 9px 4px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.95);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #a5b4fc;
+    }
+
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px 3px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #bbf7d0;
+      font-size: 11px;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+    }
+
+    .meta-row {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .meta-row span {
+      color: #c4b5fd;
+    }
+
+    .placeholder-result {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .legend-card {
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.96);
+      font-size: 11px;
+    }
+
+    .legend-title {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .legend-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .legend-tag {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 11px;
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+
+    /* Sentence mode */
+
+    .phrase-card {
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.96);
+      padding: 9px 10px 10px;
+      font-size: 12px;
+    }
+
+    .phrase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .phrase-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+    }
+
+    .phrase-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+      min-height: 22px;
+    }
+
+    .phrase-token {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.92);
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    .phrase-text {
+      font-size: 12px;
+      color: #e5e7eb;
+      opacity: 0.9;
+    }
+
+    /* History panel */
+
+    .history-card {
+      margin-top: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.96);
+      padding: 9px 10px 8px;
+      font-size: 11px;
+      max-height: 190px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .history-title {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    .history-subtitle {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .history-list {
+      margin-top: 2px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 3px 0;
+      border-bottom: 1px dashed rgba(55, 65, 81, 0.7);
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-label {
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    .history-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .history-confidence {
+      color: #bbf7d0;
+    }
+
+    .history-empty {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-title-block">
+        <div class="logo-pill">SL</div>
+        <div class="app-title-text">
+          <h1>
+            Sign Language Detection
+            <span class="badge-live">
+              <span class="badge-dot"></span>
+              LIVE CAMERA
+            </span>
+          </h1>
+          <p>Use your webcam to stream a sign and get live predictions from your FastAPI backend.</p>
+        </div>
+      </div>
+      <div class="app-header-right">
+        <div class="api-pill">
+          <span class="api-dot"></span>
+          API:
+          <span class="api-url">POST /predict-image</span>
+        </div>
+        <div>Engine: <span>MediaPipe landmarks + RandomForest</span></div>
+      </div>
+    </header>
+
+    <main class="app-body">
+      <!-- LEFT: Live camera -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Camera input</div>
+          <div class="chip">Step 1 · Capture</div>
+        </div>
+
+        <div class="camera-shell">
+          <div class="camera-video-wrapper">
+            <video id="video" autoplay playsinline></video>
+            <div class="camera-placeholder" id="cameraPlaceholder">
+              Camera not started yet.<br />
+              Click <strong>Enable Camera</strong> below and allow browser access to your webcam.
+            </div>
+            <div class="camera-top-tag" id="cameraTopTag" style="display: none;">
+              <span>LIVE</span>
+              11-class sign model
+            </div>
+            <div class="camera-overlay" id="cameraOverlay">
+              <span class="camera-status-dot" id="cameraStatusDot"></span>
+              <span id="overlayText">Camera idle · No prediction yet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden canvas for frame capture -->
+        <canvas id="captureCanvas" style="display: none;"></canvas>
+
+        <div class="controls-row">
+          <div class="btn-row">
+            <button class="primary-btn" id="enableCameraBtn">
+              <span>Enable Camera</span>
+            </button>
+            <button class="ghost-btn" id="startDetectBtn" disabled>
+              <span>Start Detection</span>
+            </button>
+            <button class="ghost-btn" id="stopDetectBtn" disabled>
+              <span>Stop</span>
+            </button>
+          </div>
+          <div class="secondary-text">
+            Backend: <span>http://127.0.0.1:8000/predict-image</span><br />
+            Interval: <span>configurable</span>
+          </div>
+        </div>
+
+        <div class="status-line" id="statusLine">
+          <span class="status-dot-idle" id="statusDot"></span>
+          <span id="statusText">Idle · Camera not started.</span>
+        </div>
+
+        <!-- Settings panel -->
+        <div class="settings-card">
+          <div class="settings-title">Detection settings</div>
+          <div class="settings-row">
+            <label for="speedSelect">Speed</label>
+            <select id="speedSelect">
+              <option value="fast">Fast (0.4 s)</option>
+              <option value="medium" selected>Medium (0.7 s)</option>
+              <option value="slow">Slow (1.2 s)</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <label>
+              <input type="checkbox" id="toggleConfidence" checked />
+              Show confidence values
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Results, sentence mode & history -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Prediction & classes</div>
+          <div class="chip">Step 2 · Output</div>
+        </div>
+
+        <div class="result-section">
+          <div class="placeholder-result" id="placeholderResult">
+            Once the camera is enabled and <strong>Start Detection</strong> is active, the most recent prediction will appear here.
+          </div>
+
+          <div class="result-card" id="resultCard" style="display: none;">
+            <div>
+              <div class="result-main-label">
+                <span id="resultLabel">–</span>
+                <span class="result-pill">Current sign</span>
+              </div>
+              <div class="meta-row" style="margin-top: 4px;">
+                Model: <span>sign_model.pkl</span>
+              </div>
+              <div class="meta-row">
+                Source: <span>Live camera frame → FastAPI</span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div class="confidence-badge" id="confidenceBadge">
+                <span>Confidence</span>
+                <span id="resultConfidence">–</span>
+              </div>
+              <div class="meta-row" style="margin-top: 6px;">
+                Last updated: <span id="resultTime">–</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sentence mode -->
+        <div class="phrase-card">
+          <div class="phrase-header">
+            <div class="phrase-title">Sentence mode</div>
+            <button class="ghost-btn small" id="clearPhraseBtn">Clear phrase</button>
+          </div>
+          <div class="phrase-tags" id="phraseTags">
+            <span style="font-size: 11px; color: var(--text-muted);">No tokens yet – perform different signs to build a phrase.</span>
+          </div>
+          <div class="phrase-text" id="phraseText">—</div>
+        </div>
+
+        <!-- History panel -->
+        <div class="history-card">
+          <div class="history-header">
+            <div class="history-title">Recent predictions</div>
+            <div class="history-subtitle">Last 10 frames</div>
+          </div>
+          <div class="history-list" id="historyList">
+            <div class="history-empty">No predictions yet.</div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend-card">
+          <div class="legend-title">Active sign classes</div>
+          <div class="legend-tags">
+            <span class="legend-tag">BEAUTIFUL</span>
+            <span class="legend-tag">CAREFUL</span>
+            <span class="legend-tag">FIGHT</span>
+            <span class="legend-tag">HELLO</span>
+            <span class="legend-tag">NO</span>
+            <span class="legend-tag">NOW</span>
+            <span class="legend-tag">SEE</span>
+            <span class="legend-tag">TALK</span>
+            <span class="legend-tag">THANK YOU</span>
+            <span class="legend-tag">US</span>
+            <span class="legend-tag">YES</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = "http://127.0.0.1:8000/predict-image";
+
+    const video = document.getElementById("video");
+    const cameraPlaceholder = document.getElementById("cameraPlaceholder");
+    const cameraTopTag = document.getElementById("cameraTopTag");
+    const cameraOverlay = document.getElementById("cameraOverlay");
+    const cameraStatusDot = document.getElementById("cameraStatusDot");
+    const overlayText = document.getElementById("overlayText");
+
+    const enableCameraBtn = document.getElementById("enableCameraBtn");
+    const startDetectBtn = document.getElementById("startDetectBtn");
+    const stopDetectBtn = document.getElementById("stopDetectBtn");
+
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+
+    const placeholderResult = document.getElementById("placeholderResult");
+    const resultCard = document.getElementById("resultCard");
+    const resultLabel = document.getElementById("resultLabel");
+    const resultConfidence = document.getElementById("resultConfidence");
+    const resultTime = document.getElementById("resultTime");
+    const confidenceBadge = document.getElementById("confidenceBadge");
+
+    const captureCanvas = document.getElementById("captureCanvas");
+    const ctx = captureCanvas.getContext("2d");
+
+    const speedSelect = document.getElementById("speedSelect");
+    const toggleConfidence = document.getElementById("toggleConfidence");
+
+    const phraseTags = document.getElementById("phraseTags");
+    const phraseText = document.getElementById("phraseText");
+    const clearPhraseBtn = document.getElementById("clearPhraseBtn");
+
+    const historyList = document.getElementById("historyList");
+
+    let stream = null;
+    let isDetecting = false;
+    let detectInterval = 700; // default medium
+    let showConfidence = true;
+
+    let phraseTokens = [];
+    const MAX_HISTORY = 10;
+    let historyItems = [];
+
+    function setStatus(msg, mode = "idle") {
+      statusText.textContent = msg;
+      if (mode === "loading") {
+        statusDot.className = "status-dot-loading";
+        statusText.classList.remove("error-text");
+      } else if (mode === "error") {
+        statusDot.className = "status-dot-idle";
+        statusText.classList.add("error-text");
+      } else {
+        statusDot.className = "status-dot-idle";
+        statusText.classList.remove("error-text");
+      }
+    }
+
+    function setCameraOverlay(text, active = false) {
+      overlayText.textContent = text;
+      if (active) {
+        cameraStatusDot.classList.add("active");
+      } else {
+        cameraStatusDot.classList.remove("active");
+      }
+    }
+
+    async function enableCamera() {
+      try {
+        setStatus("Requesting camera access…", "loading");
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
+        cameraPlaceholder.style.display = "none";
+        cameraTopTag.style.display = "flex";
+        setStatus("Camera enabled · Position your hand in front of the camera.", "idle");
+        setCameraOverlay("Camera ready · Detection is off.", false);
+
+        enableCameraBtn.disabled = true;
+        startDetectBtn.disabled = false;
+      } catch (err) {
+        console.error(err);
+        setStatus("Camera access denied or unavailable.", "error");
+      }
+    }
+
+    function labelToNicePhraseToken(label) {
+      // convert "THANK YOU" -> "Thank you"
+      const lower = label.toLowerCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    }
+
+    function updatePhrase(label) {
+      if (!label) return;
+      if (phraseTokens.length === 0) {
+        phraseTokens.push(label);
+      } else {
+        const last = phraseTokens[phraseTokens.length - 1];
+        if (last !== label) {
+          phraseTokens.push(label);
+        }
+      }
+      renderPhrase();
+    }
+
+    function renderPhrase() {
+      phraseTags.innerHTML = "";
+      if (phraseTokens.length === 0) {
+        phraseTags.innerHTML = '<span style="font-size: 11px; color: var(--text-muted);">No tokens yet – perform different signs to build a phrase.</span>';
+        phraseText.textContent = "—";
+        return;
+      }
+
+      phraseTokens.forEach((tok, idx) => {
+        const span = document.createElement("span");
+        span.className = "phrase-token";
+        span.textContent = tok;
+        phraseTags.appendChild(span);
+      });
+
+      const sentence = phraseTokens
+        .map(labelToNicePhraseToken)
+        .join(" ");
+
+      phraseText.textContent = `"${sentence}."`;
+    }
+
+    function clearPhrase() {
+      phraseTokens = [];
+      renderPhrase();
+    }
+
+    function addHistoryItem(label, confidence, timeObj) {
+      const timeStr = timeObj.toLocaleTimeString();
+      historyItems.unshift({
+        label,
+        confidence,
+        time: timeStr
+      });
+      if (historyItems.length > MAX_HISTORY) {
+        historyItems.pop();
+      }
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = "";
+      if (historyItems.length === 0) {
+        const div = document.createElement("div");
+        div.className = "history-empty";
+        div.textContent = "No predictions yet.";
+        historyList.appendChild(div);
+        return;
+      }
+
+      historyItems.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "history-item";
+
+        const left = document.createElement("div");
+        left.className = "history-label";
+        left.textContent = item.label;
+
+        const right = document.createElement("div");
+        right.className = "history-meta";
+
+        const timeSpan = document.createElement("span");
+        timeSpan.textContent = item.time;
+
+        right.appendChild(timeSpan);
+
+        if (showConfidence && typeof item.confidence === "number") {
+          const confSpan = document.createElement("span");
+          confSpan.className = "history-confidence";
+          confSpan.textContent = (item.confidence * 100).toFixed(1) + "%";
+          right.appendChild(confSpan);
+        }
+
+        row.appendChild(left);
+        row.appendChild(right);
+        historyList.appendChild(row);
+      });
+    }
+
+    async function sendCurrentFrame() {
+      if (!video.videoWidth || !video.videoHeight) {
+        return;
+      }
+
+      captureCanvas.width = video.videoWidth;
+      captureCanvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+
+      return new Promise((resolve) => {
+        captureCanvas.toBlob(async (blob) => {
+          if (!blob) {
+            resolve();
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("file", blob, "frame.jpg");
+
+          try {
+            const response = await fetch(API_URL, {
+              method: "POST",
+              body: formData
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              const msg = errorData.detail || "Prediction failed.";
+              setStatus(`Error: ${msg}`, "error");
+              setCameraOverlay("Error · Check backend.", false);
+              resolve();
+              return;
+            }
+
+            const data = await response.json();
+            const label = data.label || "Unknown";
+            const confidence = data.confidence;
+            const now = new Date();
+
+            // Main result card
+            resultLabel.textContent = label;
+            resultTime.textContent = now.toLocaleTimeString();
+
+            if (showConfidence && typeof confidence === "number") {
+              resultConfidence.textContent = (confidence * 100).toFixed(1) + "%";
+              confidenceBadge.style.display = "inline-flex";
+            } else if (showConfidence) {
+              resultConfidence.textContent = "N/A";
+              confidenceBadge.style.display = "inline-flex";
+            } else {
+              confidenceBadge.style.display = "none";
+            }
+
+            placeholderResult.style.display = "none";
+            resultCard.style.display = "grid";
+
+            // Sentence mode
+            updatePhrase(label);
+
+            // History panel
+            addHistoryItem(label, confidence, now);
+
+            setStatus("Detection running · Latest prediction updated.", "idle");
+            setCameraOverlay(`Predicted: ${label}`, true);
+          } catch (err) {
+            console.error(err);
+            setStatus("Network or server error. Check if FastAPI is running.", "error");
+            setCameraOverlay("Connection error · Check backend.", false);
+          } finally {
+            resolve();
+          }
+        }, "image/jpeg", 0.8);
+      });
+    }
+
+    async function detectionLoop() {
+      if (!isDetecting) return;
+      await sendCurrentFrame();
+      if (isDetecting) {
+        setTimeout(detectionLoop, detectInterval);
+      }
+    }
+
+    enableCameraBtn.addEventListener("click", enableCamera);
+
+    startDetectBtn.addEventListener("click", () => {
+      if (!stream) {
+        setStatus("Camera is not enabled yet.", "error");
+        return;
+      }
+      if (isDetecting) return;
+      isDetecting = true;
+      startDetectBtn.disabled = true;
+      stopDetectBtn.disabled = false;
+      setStatus("Detection started · Sending frames to FastAPI.", "loading");
+      setCameraOverlay("Detecting…", true);
+      detectionLoop();
+    });
+
+    stopDetectBtn.addEventListener("click", () => {
+      isDetecting = false;
+      startDetectBtn.disabled = false;
+      stopDetectBtn.disabled = true;
+      setStatus("Detection stopped · Camera still active.", "idle");
+      setCameraOverlay("Camera ready · Detection is off.", false);
+    });
+
+    // Settings: speed
+    speedSelect.addEventListener("change", () => {
+      const val = speedSelect.value;
+      if (val === "fast") {
+        detectInterval = 400;
+      } else if (val === "medium") {
+        detectInterval = 700;
+      } else {
+        detectInterval = 1200;
+      }
+    });
+
+    // Settings: toggle confidence display
+    toggleConfidence.addEventListener("change", () => {
+      showConfidence = toggleConfidence.checked;
+
+      // Main card
+      if (!showConfidence) {
+        confidenceBadge.style.display = "none";
+      } else {
+        confidenceBadge.style.display = "inline-flex";
+      }
+
+      // Re-render history to hide/show confidence
+      renderHistory();
+    });
+
+    // Sentence mode clear
+    clearPhraseBtn.addEventListener("click", () => {
+      clearPhrase();
+    });
+
+    // Initial state
+    renderPhrase();
+    renderHistory();
+  </script>
+</body>
+</html>

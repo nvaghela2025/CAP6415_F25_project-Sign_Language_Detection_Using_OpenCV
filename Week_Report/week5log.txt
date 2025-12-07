@@ -1,0 +1,34 @@
+Week 5 – End-to-End Integration and Demo Readiness
+Project: Sign Language Detection Using OpenCV (MediaPipe + Random Forest)
+
+1) Overview
+This week focused on turning the project into a complete, runnable system: cleaning the dataset, stabilizing training, wiring the trained model into the API, and validating both the browser frontend and the desktop OpenCV demo. We also refreshed the README with clear installation/run steps and troubleshooting.
+
+2) Data & Training Updates
+- Cleaned dataset: removed 4 NaN rows from `data/landmarks.csv` to prevent train/test split failures.
+- Training pipeline (`scripts/train_classifier.py`) now handles NaNs automatically and uses a single CV worker to avoid sandbox semaphore limits.
+- Model retrained on 12-sign dataset (63-dim landmark features) → saved to `models/sign_model.pkl`.
+- Current metrics (from `reports/classification_report.txt`): test accuracy ≈ 0.988 with strong per-class F1 across all labels.
+
+3) Backend & API
+- FastAPI app (`app/main.py`) loads `models/sign_model.pkl`, exposes `/health` and `/predict-image`.
+- Uvicorn command verified: `uvicorn app.main:app --reload --host 127.0.0.1 --port 8000`.
+- `/predict-image` accepts an image, extracts MediaPipe landmarks, applies the trained pipeline, and returns label + optional confidence.
+
+4) Frontend
+- `frontend/index.html` now serves as a full demo: captures webcam via `getUserMedia`, posts frames to the API at `http://127.0.0.1:8000/predict-image`, and displays live predictions, confidence, history, and sentence mode.
+- Static serving tested with `python -m http.server 3000 --directory frontend`; open `http://127.0.0.1:3000`.
+
+5) Desktop OpenCV Demo
+- `scripts/real_demo.py` fixed to use the local model path `models/sign_model.pkl`.
+- Uses MediaPipe + OpenCV to show live predictions; smoothing controlled by `SMOOTHING_WINDOW` (set to 1 for raw outputs).
+- Run with `python scripts/real_demo.py` (press ESC to quit).
+
+6) Documentation & Ops
+- README rewritten with: how-it-works summary, supported labels, install/train/run commands, frontend/backend usage, data-collection hotkeys, troubleshooting, and pinned requirements (`requirement.txt`).
+- Quickstart validated end-to-end: install → train → start API → serve frontend → live predictions.
+
+7) Next Steps (if time permits)
+- Expand dataset with additional balanced samples and retrain.
+- Tune RandomForest hyperparameters (trees/depth) or experiment with lightweight CNN while keeping MediaPipe landmarks as input.
+- Add basic confidence thresholding and UI toggle in the frontend.
